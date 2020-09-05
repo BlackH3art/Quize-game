@@ -1,7 +1,13 @@
 const question = document.querySelector('#question');
 const gameBoard = document.querySelector('#game-board');
 const h2 = document.querySelector('h2');
+const tipdiv = document.querySelector('#tip');
 
+
+
+
+/* ********************************************************** */
+// 
 
 function fillQuestionElement(data) {
 
@@ -10,6 +16,14 @@ function fillQuestionElement(data) {
     h2.innerText = 'You win!';
     return;
   }
+
+  if(data.loser === true) {
+    gameBoard.style.display = 'none';
+    h2.innerText = 'Unfortunately you lose!';
+  }
+
+
+
   question.innerText = data.question;
 
   for (let i in data.answers) {
@@ -48,10 +62,57 @@ function sendAnswer(answerIndex) {
 }
 
 
-const buttons = document.querySelectorAll("button");
+const buttons = document.querySelectorAll(".answer-btn");
 for (let button of buttons) {
   button.addEventListener('click', (event) => {
     const answerIndex = event.target.dataset.answer
     sendAnswer(answerIndex);
   })
 }
+
+
+
+/* ********************************************************** */
+// koło ratunkowe - telefon do przyjaciela
+
+function handleFriendAnswer(data) {
+  tipdiv.innerText = data.text;
+}
+
+function callToFriend() {
+  fetch(`/help/friend`, {
+    method: 'GET',
+  })
+  .then( response => response.json() )
+  .then( data => handleFriendAnswer(data) )
+
+}
+
+
+/* ********************************************************** */
+// koło ratunkowe pół na pół
+
+function handleFiftyFiftyHint(data) {
+  if (typeof data.text === 'string') {
+    tipdiv.innerText = data.text;
+  } else {
+    for (button of buttons) {
+      if(data.answersToRemove.indexOf(button.innerText) > -1) {
+        button.innerText = '';
+      }
+    }
+  }
+}
+
+function fiftyfifty() {
+  fetch(`/help/fiftyfifty`, {
+    method: 'GET',
+  })
+  .then( response => response.json() )
+  .then( data => handleFiftyFiftyHint(data) )
+
+}
+
+
+document.querySelector('#callToFriend').addEventListener('click', callToFriend)
+document.querySelector('#fiftyFifty').addEventListener('click', fiftyfifty)

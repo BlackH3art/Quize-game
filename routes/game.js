@@ -46,32 +46,74 @@ function gameRoutes(app) {
   })
 
 
-    app.post('/answer/:index', (req, res) => {
-      const { index } = req.params;
-      const question = questions[goodAnswers]
-      const isCorrectAnswer = question.correctAnswer == index
+  app.post('/answer/:index', (req, res) => {
+    const { index } = req.params;
+    const question = questions[goodAnswers]
+    const isCorrectAnswer = question.correctAnswer == index
 
-      if (gameOver) { 
-        res.json({
-          loser: true
-        })
-      }
-
-
-      if (isCorrectAnswer) {
-        goodAnswers++;
-      } else {
-        gameOver = true
-      }
-
-
+    if (gameOver) { 
       res.json({
-        correct: isCorrectAnswer,
-        goodAnswers
+        loser: true
       })
+    }
 
+
+    if (isCorrectAnswer) {
+      goodAnswers++;
+    } else {
+      gameOver = true
+    }
+
+
+    res.json({
+      correct: isCorrectAnswer,
+      goodAnswers
     })
 
+  })
+
+  app.get('/help/friend', (req, res) => {
+    if(callToFriend) {
+      return res.json({
+        text: "You already used this hint"
+      })
+    }
+
+    callToFriend = true; 
+
+    const friendKnowCorrectAnswer = Math.random() < 0.5;
+    const question = questions[goodAnswers];
+    const itsMaybe = question.answers[Math.floor(Math.random() * 4)];
+
+    res.json({
+      text: friendKnowCorrectAnswer ? 
+      `I'm sure its ${question.answers[question.correctAnswer]}` : 
+      `It's maybe ${itsMaybe}`
+    })
+  })
+
+  app.get('/help/fiftyfifty', (req, res) => {
+    if(fiftyFifty) {
+      return res.json({
+        test: "You already used this hint"
+      })
+    }
+
+    fiftyFifty = true;
+
+    const question = questions[goodAnswers];
+    const answersCopy = question.answers.filter((string, index) => (
+      index !== question.correctAnswer
+    ));
+
+    answersCopy.splice(~~(Math.random() * answersCopy.length), 1)
+    
+    res.json({
+      answersToRemove: answersCopy
+    })
+  })
+
+  
 
 }
 
