@@ -114,5 +114,34 @@ function fiftyfifty() {
 }
 
 
+
+
+/* ********************************************************** */
+// koło ratunkowe - pytanie do publiczności 
+
+function handleAudienceAnswer(data) {
+  if (typeof data.text === 'string') {
+    tipdiv.innerText = data.text;
+  } else {
+    data.chart.forEach((percent, index) => {
+      buttons[index].innerText = `${buttons[index].innerText} : ${percent}%` 
+    })
+  }
+}
+
+function audienceQuestion() {
+  fetch(`/help/audienceQuestion`, {
+    method: 'GET',
+  })
+  .then( response => response.json() )
+  .then( data => handleAudienceAnswer(data) )
+
+}
+
+
+
+
+
 document.querySelector('#callToFriend').addEventListener('click', callToFriend)
 document.querySelector('#fiftyFifty').addEventListener('click', fiftyfifty)
+document.querySelector('#audienceQuestion').addEventListener('click', audienceQuestion)
